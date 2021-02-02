@@ -8,7 +8,7 @@
                               -------------------
         begin                : 2021-01-23
         git sha              : $Format:%H$
-        copyright            : (C) 2021 by CamellONCase
+        copyright            : (C) 2021 by CAMELLonCASE
         email                : camelloncase@gmail.com
  ***************************************************************************/
 
@@ -21,18 +21,24 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+import os.path
+
+from builtins import object
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QMenu
+#from qgis.PyQt.QtWidgets import QAction, QMenu
+from PyQt5.QtWidgets import QAction, QMenu, QWidget, QMessageBox
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .thematic_map_tools_dialog import ThematicMapToolsDialog
-import os.path
+from .core.layer_joins import VectorLayerJoins
 
 
-class ThematicMapTools:
+class ThematicMapTools(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -165,31 +171,34 @@ class ThematicMapTools:
         self.menu.setObjectName('thematicMapToolsMenu')
         self.menu.setTitle(self.tr(u'&Thematic Map Tools'))
 
-        self.action = QAction(QIcon(':/plugins/thematic_map_tools/icon.png'),
+        self.action = QAction(QIcon(':/plugins/thematic_map_tools/icons/icon.png'),
                               self.tr(u'&Thematic Map Tools'), self.iface.mainWindow())
-        self.action2 = QAction(QIcon(':/plugins/thematic_map_tools/icon.png'),
-                              self.tr(u'&Thematic Map Tools'), self.iface.mainWindow())
-        self.action3 = QAction(QIcon(':/plugins/thematic_map_tools/icon.png'),
-                              self.tr(u'&Thematic Map Tools'), self.iface.mainWindow())
+        self.remove = QAction(QIcon(':/plugins/thematic_map_tools/icons/remove.png'),
+                              self.tr(u'&Remove Join'), self.iface.mainWindow())
+        self.setup = QAction(QIcon(':/plugins/thematic_map_tools/icons/setup.png'),
+                             self.tr(u'&Setup'), self.iface.mainWindow())
         self.action.setObjectName("testAction")
         self.action.setWhatsThis("Configuration for test plugin")
         self.action.setStatusTip(self.tr(u'Tools to build thematic maps'))
         self.action.triggered.connect(self.run)
+        self.remove.triggered.connect(self.removeAction)
 
         self.toolbar.addAction(self.action)
-        self.toolbar.addAction(self.action2)
-        self.toolbar.addAction(self.action3)
+        self.toolbar.addAction(self.remove)
+        self.toolbar.addAction(self.setup)
         self.menu.addAction(self.action)
+        self.menu.addAction(self.remove)
+        self.menu.addAction(self.setup)
 
         menuBar = self.iface.mainWindow().menuBar()
         menuBar.insertMenu(
             self.iface.firstRightStandardMenu().menuAction(), self.menu)
 
-        # icon_path = ':/plugins/thematic_map_tools/icon.png'
+        # icon_path = ':/plugins/thematic_map_tools/icons/remove.png'
         # self.add_action(
         #     icon_path,
-        #     text=self.tr(u'Thematic Map Tools'),
-        #     callback=self.run,
+        #     text=self.tr(u'Remove'),
+        #     callback=RemoveAttributeLayerJoin,
         #     parent=self.iface.mainWindow())
 
         # will be set False in run()
@@ -225,3 +234,6 @@ class ThematicMapTools:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+
+    def removeAction(self):
+        VectorLayerJoins()
