@@ -181,7 +181,8 @@ class ThematicMapTools(object):
         self.action.setWhatsThis("Configuration for test plugin")
         self.action.setStatusTip(self.tr(u'Tools to build thematic maps'))
         self.action.triggered.connect(self.run)
-        self.remove.triggered.connect(self.removeAction)
+        self.remove.triggered.connect(self.removeJoinAction)
+        self.setup.triggered.connect(self.joinAction)
 
         self.toolbar.addAction(self.action)
         self.toolbar.addAction(self.remove)
@@ -217,23 +218,27 @@ class ThematicMapTools(object):
         #     self.iface.removeToolBarIcon(action)
 
     def run(self):
-        """Run method that performs all the real work"""
+        pass
+    #     """Run method that performs all the real work"""
 
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
-            self.dlg = ThematicMapToolsDialog()
+    #     # Create the dialog with elements (after translation) and keep reference
+    #     # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+    #     if self.first_start == True:
+    #         self.first_start = False
+    #         self.dlg = ThematicMapToolsDialog()
 
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+    #     # show the dialog
+    #     self.dlg.show()
+    #     # Run the dialog event loop
+    #     result = self.dlg.exec_()
+    #     # See if OK was pressed
+    #     if result:
+    #         # Do something useful here - delete the line containing pass and
+    #         # substitute with your code.
+    #         pass
 
-    def removeAction(self):
-        VectorLayerJoins()
+    def removeJoinAction(self):
+        VectorLayerJoins().removeJoinTables()
+
+    def joinAction(self):
+        VectorLayerJoins().vectorLayerJoin()
