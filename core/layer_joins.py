@@ -42,8 +42,8 @@ class VectorLayerJoins(QObject):
         self.layers = QgsProject.instance().mapLayers()
         self.spatial, self.nonSpatial, self.toRemove = [], [], []
         self.getLayers()
-        self.createPairDict()
-        self.removeJoinTables()
+        # self.createPairDict()
+        #self.removeJoinTables()
 
     def getLayers(self):
         """Get the spatial and non spatial layers"""
@@ -71,30 +71,61 @@ class VectorLayerJoins(QObject):
         for camada in self.toRemove:
             QgsProject.instance().removeMapLayer(camada.id())
 
+    def vectorLayerJoin(self):
+        pairs = self.createPairDict()
+        for layer, table in pairs.items():
+            target = layer
+            layerToJoin = table
+            join = QgsVectorLayerJoinInfo()
+            join.setJoinFieldName('id_feature')
+            join.setTargetFieldName('id')
+            join.setJoinLayerId(layerToJoin.id())
+            join.setUsingMemoryCache(True)
+            join.setEditable(True)
+            join.setDynamicFormEnabled(True)
+            join.setUpsertOnEdit(True)
+            join.setPrefix('')
+            join.setJoinFieldNamesSubset(['legenda', 'ocultar', 'tamanhotxt',
+                                          'style', 'casetxt', 'flspacing',
+                                          'fwspacing', 'justtxt', 'orient_txt',
+                                          'orient_simb', 'offset_quad',
+                                          'offset_txt','offset_txt_x',
+                                          'offset_txt_y', 'offset_simb',
+                                          'offset_simb_x', 'offset_simb_y',
+                                          'priority'])
+            join.setJoinLayer(layerToJoin)
+            target.addJoin(join)
+            layerToJoin.startEditing()
+            target.triggerRepaint()
+            self.message('Success', 'All joins were maded!', 0, 5)
+
     def removeJoinTables(self):
         """Docstring"""
-        for layer, table in self.pairDict.items():
+        pairs = self.createPairDict()
+        for layer, table in pairs.items():
             target = layer
             layerToJoin = table
             target.removeJoin(layerToJoin.id())
             target.triggerRepaint()
-        self.message()
+        self.message('Success', 'All joins were removed!', 3, 5)
 
-    def message(self):
+    def message(self, title, text, level, duration):
         """Docstring"""
         # fix the progreemesssagebar
-        progressMessageBar = iface.messageBar().createMessage("Removing vector layer joins...")
-        progress = QProgressBar()
-        progress.setMaximum(10)
-        progress.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
-        progressMessageBar.layout().addWidget(progress)
-        iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
+        # progressMessageBar = iface.messageBar().createMessage("Removing vector layer joins...")
+        # progress = QProgressBar()
+        # progress.setMaximum(10)
+        # progress.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+        # progressMessageBar.layout().addWidget(progress)
+        # iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
-        for i in range(10):
-            time.sleep(1)
-            progress.setValue(i + 5)
+        # for i in range(10):
+        #     time.sleep(1)
+        #     progress.setValue(i + 5)
 
-        iface.messageBar().clearWidgets()
+        # iface.messageBar().clearWidgets()
 
-        iface.messageBar().pushMessage(self.tr("Success"),
-                                       self.tr("all joins were removed!"), level=3, duration=3)
+        iface.messageBar().pushMessage(self.tr(title),
+                                       self.tr(text),
+                                       level=level,
+                                       duration=duration)
