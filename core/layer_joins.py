@@ -27,7 +27,7 @@ import os.path
 import time
 from qgis.core import Qgis, QgsVectorLayer, QgsRasterLayer, QgsMessageLog, QgsVectorLayerJoinInfo, QgsProject, QgsWkbTypes
 from qgis.PyQt.Qt import QObject, QVariant, Qt
-from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
 from qgis.PyQt.QtCore import *
 from qgis.utils import iface
 from qgis.gui import QgsMessageBar
@@ -72,7 +72,10 @@ class VectorLayerJoins(QObject):
             QgsProject.instance().removeMapLayer(camada.id())
 
     def vectorLayerJoin(self):
+        """Docstring"""
         pairs = self.createPairDict()
+        self.testForJoins(pairs)
+
         for layer, table in pairs.items():
             target = layer
             layerToJoin = table
@@ -97,19 +100,31 @@ class VectorLayerJoins(QObject):
             target.addJoin(join)
             layerToJoin.startEditing()
             target.triggerRepaint()
-            self.message('Success', 'All joins were maded!', 0, 5)
+        self.showMessage('Info', 'All joins were maded!', 0, True)
 
-    def removeJoinTables(self):
+    def removeJoinTables(self, layer=None, table=None):
         """Docstring"""
-        pairs = self.createPairDict()
-        for layer, table in pairs.items():
+        if layer or table:
             target = layer
-            layerToJoin = table
-            target.removeJoin(layerToJoin.id())
+            layerToDisjoin = table
+            target.removeJoin(layerToDisjoin.id())
             target.triggerRepaint()
-        self.message('Success', 'All joins were removed!', 3, 5)
+        else:
+            pairs = self.createPairDict()
+            for lyr, tbl in pairs.items():
+                target = lyr
+                layerToDisjoin = tbl
+                target.removeJoin(layerToDisjoin.id())
+                target.triggerRepaint()
+        self.showMessage('Success', 'All joins were removed!', 3, False)
 
-    def message(self, title, text, level, duration):
+    def testForJoins(self, pairDict):
+        """Docstring"""
+        for layer, table in pairDict.items():
+            if layer.joinBuffer().containsJoins():
+                self.removeJoinTables(layer, table)
+
+    def showMessage(self, title, text, level, verification=False):
         """Docstring"""
         # fix the progreemesssagebar
         # progressMessageBar = iface.messageBar().createMessage("Removing vector layer joins...")
@@ -124,8 +139,32 @@ class VectorLayerJoins(QObject):
         #     progress.setValue(i + 5)
 
         # iface.messageBar().clearWidgets()
+        msg = QMessageBox()
+        msg.setWindowTitle(self.tr("Setup vector layer joins"))
 
-        iface.messageBar().pushMessage(self.tr(title),
+        if verification:
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText(self.tr("Already exists some vector layer joins!"))
+            msg.setInformativeText(
+                self.tr("Do you want to ignore and continue or cancel?"))
+            formatedMsgString = self.tr(
+                'If you ignore and continue the existent joins will be removed and new ones will be made.')
+
+            msg.setDetailedText(formatedMsgString)
+            msg.setStandardButtons(QMessageBox.Ignore | QMessageBox.Cancel)
+            msg.setDefaultButton(QMessageBox.Ignore)
+
+            choice = msg.exec_()
+            return choice
+
+        else:
+            iface.messageBar().pushMessage(self.tr(title),
                                        self.tr(text),
                                        level=level,
-                                       duration=duration)
+                                       duration=3)
+
+
+
+
+
+

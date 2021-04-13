@@ -4,5 +4,7 @@
         <file>icons/remove.png</file>
         <file>icons/setup.png</file>
         <file>icons/label.png</file>
+        <file>icons/destination.png</file>
+        <file>icons/prefix.png</file>
     </qresource>
 </RCC>

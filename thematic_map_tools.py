@@ -36,6 +36,7 @@ from .resources import *
 # Import the code for the dialog
 from .thematic_map_tools_dialog import ThematicMapToolsDialog
 from .core.layer_joins import VectorLayerJoins
+from .core.label_position import ChangeLabelPosition
 
 
 class ThematicMapTools(object):
@@ -171,25 +172,35 @@ class ThematicMapTools(object):
         self.menu.setObjectName('thematicMapToolsMenu')
         self.menu.setTitle(self.tr(u'&Thematic Map Tools'))
 
-        self.action = QAction(QIcon(':/plugins/thematic_map_tools/icons/icon.png'),
+        self.labelPosition = QAction(QIcon(':/plugins/thematic_map_tools/icons/icon.png'),
                               self.tr(u'&Thematic Map Tools'), self.iface.mainWindow())
         self.remove = QAction(QIcon(':/plugins/thematic_map_tools/icons/remove.png'),
                               self.tr(u'&Remove Join'), self.iface.mainWindow())
         self.setup = QAction(QIcon(':/plugins/thematic_map_tools/icons/setup.png'),
                              self.tr(u'&Setup'), self.iface.mainWindow())
-        self.action.setObjectName("testAction")
-        self.action.setWhatsThis("Configuration for test plugin")
-        self.action.setStatusTip(self.tr(u'Tools to build thematic maps'))
-        self.action.triggered.connect(self.run)
+        self.destination = QAction(QIcon(':/plugins/thematic_map_tools/icons/destination.png'),
+                             self.tr(u'&Destination'), self.iface.mainWindow())
+        self.routePrefix = QAction(QIcon(':/plugins/thematic_map_tools/icons/prefix.png'),
+                             self.tr(u'&Route Prefix'), self.iface.mainWindow())
+        self.labelPosition.setObjectName("testAction")
+        self.labelPosition.setWhatsThis("Configuration for test plugin")
+        self.labelPosition.setStatusTip(self.tr(u'Tools to build thematic maps'))
+        self.labelPosition.triggered.connect(self.labelPositionAction)
         self.remove.triggered.connect(self.removeJoinAction)
         self.setup.triggered.connect(self.joinAction)
+        self.destination.triggered.connect(self.destinationAction)
+        self.routePrefix.triggered.connect(self.routePrefixAction)
 
-        self.toolbar.addAction(self.action)
+        self.toolbar.addAction(self.labelPosition)
         self.toolbar.addAction(self.remove)
         self.toolbar.addAction(self.setup)
-        self.menu.addAction(self.action)
+        self.toolbar.addAction(self.destination)
+        self.toolbar.addAction(self.routePrefix)
+        self.menu.addAction(self.labelPosition)
         self.menu.addAction(self.remove)
         self.menu.addAction(self.setup)
+        self.menu.addAction(self.destination)
+        self.menu.addAction(self.routePrefix)
 
         menuBar = self.iface.mainWindow().menuBar()
         menuBar.insertMenu(
@@ -237,8 +248,17 @@ class ThematicMapTools(object):
     #         # substitute with your code.
     #         pass
 
+    def labelPositionAction(self):
+        ChangeLabelPosition().setQuadrantPos()
+
     def removeJoinAction(self):
         VectorLayerJoins().removeJoinTables()
 
     def joinAction(self):
         VectorLayerJoins().vectorLayerJoin()
+
+    def destinationAction(self):
+        pass
+
+    def routePrefixAction(self):
+        pass
