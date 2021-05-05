@@ -46,16 +46,18 @@ class ChangeLabelPosition(QObject):
         #self.removeJoinTables()
 
     def getSelectedFeature(self):
-        print(self.layers)
+        # print(self.layers)
 
         for layerIds, layer in self.layers.items():
+            print(layer.geomType())
+            
 
-            if len(layer.selectedFeatures()) > 1:
-                QMessageBox.critical(
-                    iface.mainWindow(), "Error", "more than one feature were selected")
-            else:
-                self.selected_feature.append(layer.selectedFeatures())
-                print(self.selected_feature)
+            # if len(layer.selectedFeatures()) > 1:
+            #     QMessageBox.critical(
+            #         iface.mainWindow(), "Error", "more than one feature were selected")
+            # else:
+            #     self.selected_feature.append(layer.selectedFeatures())
+                # print(self.selected_feature)
 
 
     def setQuadrantPos(self):
